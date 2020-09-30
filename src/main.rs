@@ -1,6 +1,7 @@
 mod assemble;
 mod bytecode;
 mod register;
+mod tokenizer;
 mod vm;
 
 use register::Register;
@@ -20,7 +21,8 @@ fn main() {
     let mut buf = String::new();
     f.read_to_string(&mut buf).unwrap();
 
-    let (code, line_map) = assemble::assemble(&buf);
+    let tokens = tokenizer::Tokenizer::tokenize(&buf);
+    let (code, line_map) = assemble::assemble(tokens);
 
     let mut vm = VM::new();
     vm.load_code(code);
