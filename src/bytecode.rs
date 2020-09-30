@@ -1,4 +1,4 @@
-#![allow(non_snake_case)]
+#![allow(non_snake_case, unused)]
 
 use Register;
 
@@ -9,7 +9,7 @@ pub struct Opcode(pub u32);
 
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Prnt | Prn | Dump => self.print_special(f),
             B | Bl => self.print_b(f),
@@ -178,7 +178,7 @@ impl Opcode {
     }
 
     fn print_special(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Prnt => write!(f, "PRNT"),
             Prn => write!(f, "PRN"),
@@ -188,7 +188,7 @@ impl Opcode {
     }
 
     fn print_b(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             // TODO: print in hex
             B => write!(f, "B {}", self.b_addr() as i32),
@@ -198,7 +198,7 @@ impl Opcode {
     }
 
     fn print_cb(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Cbz => write!(f, "CBZ {}, {}", self.cbz_rt(), self.cbz_addr()),
             Cbnz => write!(f, "CBNZ {}, {}", self.cbnz_rt(), self.cbnz_addr()),
@@ -212,7 +212,7 @@ impl Opcode {
     }
 
     fn print_im(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Movk => write!(f, "MOVK {}, {}", self.movk_rd(), self.movk_imm()),
             Movz => write!(f, "MOVZ {}, {}", self.movz_rd(), self.movz_imm()),
@@ -221,7 +221,7 @@ impl Opcode {
     }
 
     fn print_d(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Ldur => write!(f, "LDUR {}, [{}, #{}]", self.ldur_rt(), self.ldur_rn(), self.ldur_addr()),
             Ldurb => write!(f, "LDURB {}, [{}, #{}]", self.ldurb_rt(), self.ldurb_rn(), self.ldurb_addr()),
@@ -238,7 +238,7 @@ impl Opcode {
     }
 
     fn print_i(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Addi => write!(f, "ADDI {}, {}, #{}", self.addi_rd(), self.addi_rn(), self.addi_imm()),
             Addis => write!(f, "ADDIS {}, {}, #{}", self.addis_rd(), self.addis_rn(), self.addis_imm()),
@@ -253,7 +253,7 @@ impl Opcode {
     }
 
     fn print_r(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Instruction::*;
+        use self::Instruction::*;
         match self.instruction() {
             Add => write!(f, "ADD {}, {}, {}", self.add_rd(), self.add_rn(), self.add_rm()),
             Adds => write!(f, "ADDS {}, {}, {}", self.adds_rd(), self.adds_rn(), self.adds_rm()),
