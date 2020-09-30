@@ -38,8 +38,8 @@ pub fn assemble(tokens: Vec<Token>) -> (Vec<Opcode>, Vec<usize>) {
                     // NOTE B.cond instructions are encoded differently but they are written the
                     // same as B-form instructions.
                     B | Bl | Beq | Bgt | Bge | Blt | Ble => handle_b(*instr, &mut tokens, &labels, &mut jumps, i, *line),
-                    Addi | Subi => handle_i(*instr, &mut tokens, *line),
-                    Add | Sub | Subs => handle_r(*instr, &mut tokens, *line),
+                    Addi | Addis | Andis | Eori | Orri | Subi | Subis => handle_i(*instr, &mut tokens, *line),
+                    Add | Adds | And | Ands | Eor | Orr | Sub | Subs | Mul => handle_r(*instr, &mut tokens, *line),
                     Lsl | Lsr => handle_shift(*instr, &mut tokens, *line),
                     Br => if let Some(Token::Register(_, r)) = tokens.next() {
                         Opcode::Br(*r)

@@ -10,6 +10,7 @@ A debugger for legv8 assembly.
 - `p X`: prints the contents of register X in little-endian hex and decimal.
 
 ### Currently implemented instructions
+NOTE: these aren't very well tested and may be prone to bugs.
 - PRNT, PRN, DUMP - treated as nops.
 - ADDI
 - ADD
@@ -30,3 +31,15 @@ A debugger for legv8 assembly.
 - LDUR
 - LSL
 - LSR
+- ADDIS
+- ADDS
+- SUBIS
+- ORR
+- ORRI
+- EOR
+- EORI
+- AND
+- ANDS
+- ANDI
+- ANDIS
+- MUL

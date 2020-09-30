@@ -174,11 +174,14 @@ impl VM {
 
         let op = self.code[self.pc];
         match op.instruction() {
+            Addis => self.addis(op),
             Addi => self.addi(op),
+            Adds => self.adds(op),
             Add => self.add(op),
             Sub => self.sub(op),
             Subi => self.subi(op),
             Subs => self.subs(op),
+            Subis => self.subis(op),
             Cbz => self.cbz(op),
             Cbnz => self.cbnz(op),
             B => self.b(op),
@@ -191,6 +194,15 @@ impl VM {
             Br => self.br(op),
             Stur => self.stur(op),
             Ldur => self.ldur(op),
+            Orr => self.orr(op),
+            Orri => self.orri(op),
+            Eor => self.eor(op),
+            Eori => self.eori(op),
+            And => self.and(op),
+            Ands => self.ands(op),
+            Andi => self.andi(op),
+            Andis => self.andis(op),
+            Mul => self.mul(op),
             Lsl => self.lsl(op),
             Lsr => self.lsr(op),
             Prnt | Prn | Dump => self.pc += 1,
@@ -209,12 +221,32 @@ impl VM {
         self.pc += 1;
     }
 
+    fn adds(&mut self, op: Opcode) {
+        let rd = op.add_rd();
+        let rn = op.add_rn();
+        let rm = op.add_rm();
+        let v = self.get_register(rn) + self.get_register(rm);
+        self.assign_register(rd, v);
+        self.flags = v;
+        self.pc += 1;
+    }
+
     fn addi(&mut self, op: Opcode) {
         let rd = op.addi_rd();
         let rn = op.addi_rn();
         let imm = op.addi_imm();
         let v = self.get_register(rn) + imm as u64;
         self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn addis(&mut self, op: Opcode) {
+        let rd = op.addi_rd();
+        let rn = op.addi_rn();
+        let imm = op.addi_imm();
+        let v = self.get_register(rn) + imm as u64;
+        self.assign_register(rd, v);
+        self.flags = v;
         self.pc += 1;
     }
 
@@ -236,6 +268,16 @@ impl VM {
         self.pc += 1;
     }
 
+    fn subis(&mut self, op: Opcode) {
+        let rd = op.subis_rd();
+        let rn = op.subis_rn();
+        let imm = op.subis_imm();
+        let v = self.get_register(rn) - imm as u64;
+        self.assign_register(rd, v);
+        self.flags = v;
+        self.pc += 1;
+    }
+
     fn subs(&mut self, op: Opcode) {
         let rd = op.subs_rd();
         let rn = op.subs_rn();
@@ -243,6 +285,89 @@ impl VM {
         let v = self.get_register(rn) - self.get_register(rm);
         self.assign_register(rd, v);
         self.flags = v;
+        self.pc += 1;
+    }
+
+    fn and(&mut self, op: Opcode) {
+        let rd = op.and_rd();
+        let rn = op.and_rn();
+        let rm = op.and_rm();
+        let v = self.get_register(rn) & self.get_register(rm);
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn ands(&mut self, op: Opcode) {
+        let rd = op.ands_rd();
+        let rn = op.ands_rn();
+        let rm = op.ands_rm();
+        let v = self.get_register(rn) & self.get_register(rm);
+        self.assign_register(rd, v);
+        self.flags = v;
+        self.pc += 1;
+    }
+
+    fn andi(&mut self, op: Opcode) {
+        let rd = op.andi_rd();
+        let rn = op.andi_rn();
+        let imm = op.andi_imm();
+        let v = self.get_register(rn) & imm as u64;
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn andis(&mut self, op: Opcode) {
+        let rd = op.andis_rd();
+        let rn = op.andis_rn();
+        let imm = op.andis_imm();
+        let v = self.get_register(rn) & imm as u64;
+        self.assign_register(rd, v);
+        self.flags = v;
+        self.pc += 1;
+    }
+
+    fn orr(&mut self, op: Opcode) {
+        let rd = op.orr_rd();
+        let rn = op.orr_rn();
+        let rm = op.orr_rm();
+        let v = self.get_register(rn) | self.get_register(rm);
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn orri(&mut self, op: Opcode) {
+        let rd = op.orri_rd();
+        let rn = op.orri_rn();
+        let imm = op.orri_imm();
+        let v = self.get_register(rn) | imm as u64;
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn eor(&mut self, op: Opcode) {
+        let rd = op.eor_rd();
+        let rn = op.eor_rn();
+        let rm = op.eor_rm();
+        let v = self.get_register(rn) ^ self.get_register(rm);
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn eori(&mut self, op: Opcode) {
+        let rd = op.eori_rd();
+        let rn = op.eori_rn();
+        let imm = op.eori_imm();
+        let v = self.get_register(rn) ^ imm as u64;
+        self.assign_register(rd, v);
+        self.pc += 1;
+    }
+
+    fn mul(&mut self, op: Opcode) {
+        let rd = op.mul_rd();
+        let rn = op.mul_rn();
+        let rm = op.mul_rm();
+        let v = self.get_register(rn) * self.get_register(rm);
+        self.assign_register(rd, v);
         self.pc += 1;
     }
 
