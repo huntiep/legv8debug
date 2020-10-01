@@ -11,7 +11,7 @@ impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
-            Prnt | Prn | Dump => self.print_special(f),
+            Prnt | Prnl | Dump => self.print_special(f),
             B | Bl => self.print_b(f),
             Cbz | Cbnz | Beq | Bgt | Bge | Blt | Ble => self.print_cb(f),
             Movk | Movz => self.print_im(f),
@@ -181,7 +181,7 @@ impl Opcode {
         use self::Instruction::*;
         match self.instruction() {
             Prnt => write!(f, "PRNT"),
-            Prn => write!(f, "PRN"),
+            Prnl => write!(f, "PRNL"),
             Dump => write!(f, "DUMP"),
             _ => unreachable!(),
         }
@@ -275,8 +275,8 @@ impl Opcode {
         Opcode(Instruction::Prnt.as_u32())
     }
 
-    pub fn Prn() -> Self {
-        Opcode(Instruction::Prn.as_u32())
+    pub fn Prnl() -> Self {
+        Opcode(Instruction::Prnl.as_u32())
     }
 
     pub fn Dump() -> Self {
@@ -452,7 +452,7 @@ pub enum Instruction {
     Sturd,
     Ldurd,
     Prnt,
-    Prn,
+    Prnl,
     Dump,
 }
 
@@ -495,7 +495,7 @@ impl Instruction {
             "ADDIS" => Addis,
             "ORRI" => Orri,
             "CBZ" => Cbz,
-            "CBnZ" => Cbnz,
+            "CBNZ" => Cbnz,
             "STURW" => Sturw,
             "LDURSW" => Ldursw,
             "STURS" => Sturs,
@@ -520,7 +520,7 @@ impl Instruction {
             "STURD" => Sturd,
             "LDURD" => Ldurd,
             "PRNT" => Prnt,
-            "PRN" => Prn,
+            "PRNL" => Prnl,
             "DUMP" => Dump,
             _ => return None,
         })
@@ -603,7 +603,7 @@ impl Instruction {
                 _ => unreachable!(),
             },
             Prnt => 0b11111110000 << 21,
-            Prn => 0b11111111000 << 21,
+            Prnl => 0b11111111000 << 21,
             Dump => 0b11111111100 << 21,
         }
     }
@@ -713,7 +713,7 @@ impl From<u32> for Instruction {
                 _ => (),
             },
             0b11111110000 => return Prnt,
-            0b11111111000 => return Prn,
+            0b11111111000 => return Prnl,
             0b11111111100 => return Dump,
             _ => (),
         }

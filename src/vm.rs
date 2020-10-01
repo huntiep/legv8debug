@@ -33,8 +33,9 @@ impl VM {
             stores: 0,
         };
 
-        // Initialise SP to end of stack
+        // Initialise SP and FP to end of stack
         vm.registers[28] = 64*8;
+        vm.registers[29] = 64*8;
         vm
     }
 
@@ -205,7 +206,7 @@ impl VM {
             Mul => self.mul(op),
             Lsl => self.lsl(op),
             Lsr => self.lsr(op),
-            Prnt | Prn | Dump => self.pc += 1,
+            Prnt | Prnl | Dump => self.pc += 1,
             _ => unimplemented!(),
         }
 
@@ -374,6 +375,7 @@ impl VM {
     fn cbz(&mut self, op: Opcode) {
         let rt = op.cbz_rt();
         if self.get_register(rt) == 0 {
+            println!("    Branch taken");
             self.pc += op.cbz_addr() as usize;
         } else {
             self.pc += 1;
@@ -383,6 +385,7 @@ impl VM {
     fn cbnz(&mut self, op: Opcode) {
         let rt = op.cbnz_rt();
         if self.get_register(rt) != 0 {
+            println!("    Branch taken");
             self.pc += op.cbnz_addr() as usize;
         } else {
             self.pc += 1;
@@ -396,6 +399,7 @@ impl VM {
 
     fn beq(&mut self, op: Opcode) {
         if self.flags == 0 {
+            println!("    Branch taken");
             self.pc += op.beq_addr() as usize;
         } else {
             self.pc += 1;
@@ -404,6 +408,7 @@ impl VM {
 
     fn bgt(&mut self, op: Opcode) {
         if (self.flags as i64) > 0 {
+            println!("    Branch taken");
             self.pc += op.beq_addr() as usize;
         } else {
             self.pc += 1;
@@ -412,6 +417,7 @@ impl VM {
 
     fn bge(&mut self, op: Opcode) {
         if (self.flags as i64) >= 0 {
+            println!("    Branch taken");
             self.pc += op.beq_addr() as usize;
         } else {
             self.pc += 1;
@@ -420,6 +426,7 @@ impl VM {
 
     fn blt(&mut self, op: Opcode) {
         if (self.flags as i64) < 0 {
+            println!("    Branch taken");
             self.pc += op.beq_addr() as usize;
         } else {
             self.pc += 1;
@@ -428,6 +435,7 @@ impl VM {
 
     fn ble(&mut self, op: Opcode) {
         if (self.flags as i64) <= 0 {
+            println!("    Branch taken");
             self.pc += op.beq_addr() as usize;
         } else {
             self.pc += 1;
@@ -449,7 +457,11 @@ impl VM {
         let rt = op.stur_rt();
 
         let addr = (op.stur_addr() as u64 + self.get_register(rn)) as usize;
-        assert!(addr % 8 == 0);
+        if addr % 8 != 0 {
+            println!("Addresses must be divisible by 8: {:#x}", addr);
+            self.pc = self.code.len();
+            return;
+        }
         let addr = addr / 8;
 
         if (addr as isize) < 0 {
@@ -487,7 +499,11 @@ impl VM {
         let rt = op.stur_rt();
 
         let addr = (op.stur_addr() as u64 + self.get_register(rn)) as usize;
-        assert!(addr % 8 == 0);
+        if addr % 8 != 0 {
+            println!("Addresses must be divisible by 8: {:#x}", addr);
+            self.pc = self.code.len();
+            return;
+        }
         let addr = addr / 8;
 
         if (addr as isize) < 0 {

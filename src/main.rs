@@ -40,7 +40,20 @@ fn main() {
 
         match &input[0..1] {
             "q" => break,
-            "r" => vm.run(),
+            "r" => {
+                let input = &input[1..].trim();
+                let i = if input.is_empty() {
+                    1
+                } else if let Ok(i) = input.parse() {
+                    i
+                } else {
+                    println!("Expected a positive integer");
+                    continue;
+                };
+                for _ in 0..i {
+                    vm.run();
+                }
+            }
             "d" => vm.dump(),
             "s" => {
                 let input = &input[1..].trim();

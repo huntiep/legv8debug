@@ -31,7 +31,7 @@ pub fn assemble(tokens: Vec<Token>) -> (Vec<Opcode>, Vec<usize>) {
                     } else {
                         panic!("Expected register on line {}", line);
                     },
-                    Prn => Opcode::Prn(),
+                    Prnl => Opcode::Prnl(),
                     Dump => Opcode::Dump(),
                     Stur | Ldur => handle_d(*instr, &mut tokens, *line),
                     Cbz | Cbnz => handle_cb(*instr, &mut tokens, &labels, &mut jumps, i, *line),

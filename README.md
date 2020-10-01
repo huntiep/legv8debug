@@ -3,7 +3,7 @@ A debugger for legv8 assembly.
 
 ### Supported commands
 - `q`: quit the debugger
-- `r`: run the program until a breakpoint is hit or the program terminates
+- `r [X]`: run the program until a breakpoint is hit or the program terminates. If X is provided X breakpoints are skipped which is useful for skipping X loop iterations.
 - `b X`: set a breakpoint at line X.
 - `s [X]`: run X instructions. If no X is provided defaults to 1.
 - `d`: prints registers and memory values in a format similar to hexdump, little-endian
@@ -11,7 +11,7 @@ A debugger for legv8 assembly.
 
 ### Currently implemented instructions
 NOTE: these aren't very well tested and may be prone to bugs.
-- PRNT, PRN, DUMP - treated as nops.
+- PRNT, PRNL, DUMP - treated as nops.
 - ADDI
 - ADD
 - SUB
