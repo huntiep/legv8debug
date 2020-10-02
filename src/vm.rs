@@ -376,7 +376,7 @@ impl VM {
         let rt = op.cbz_rt();
         if self.get_register(rt) == 0 {
             println!("    Branch taken");
-            self.pc += op.cbz_addr() as usize;
+            self.pc = (self.pc as u32 + op.cbz_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -386,7 +386,7 @@ impl VM {
         let rt = op.cbnz_rt();
         if self.get_register(rt) != 0 {
             println!("    Branch taken");
-            self.pc += op.cbnz_addr() as usize;
+            self.pc = (self.pc as u32 + op.cbnz_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -400,7 +400,7 @@ impl VM {
     fn beq(&mut self, op: Opcode) {
         if self.flags == 0 {
             println!("    Branch taken");
-            self.pc += op.beq_addr() as usize;
+            self.pc = (self.pc as u32 + op.beq_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -409,7 +409,7 @@ impl VM {
     fn bgt(&mut self, op: Opcode) {
         if (self.flags as i64) > 0 {
             println!("    Branch taken");
-            self.pc += op.beq_addr() as usize;
+            self.pc = (self.pc as u32 + op.bgt_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -418,7 +418,7 @@ impl VM {
     fn bge(&mut self, op: Opcode) {
         if (self.flags as i64) >= 0 {
             println!("    Branch taken");
-            self.pc += op.beq_addr() as usize;
+            self.pc = (self.pc as u32 + op.bge_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -427,7 +427,7 @@ impl VM {
     fn blt(&mut self, op: Opcode) {
         if (self.flags as i64) < 0 {
             println!("    Branch taken");
-            self.pc += op.beq_addr() as usize;
+            self.pc = (self.pc as u32 + op.blt_addr()) as usize;
         } else {
             self.pc += 1;
         }
@@ -436,7 +436,7 @@ impl VM {
     fn ble(&mut self, op: Opcode) {
         if (self.flags as i64) <= 0 {
             println!("    Branch taken");
-            self.pc += op.beq_addr() as usize;
+            self.pc = (self.pc as u32 + op.ble_addr()) as usize;
         } else {
             self.pc += 1;
         }
