@@ -26,18 +26,20 @@ pub fn assemble(tokens: Vec<Token>) -> (Vec<Opcode>, Vec<usize>) {
             Token::Instruction(line, instr) => {
                 use bytecode::Instruction::*;
                 code.push(match instr {
-                    Prnt => if let Some(Token::Register(_, _)) = tokens.next() {
-                        Opcode::Prnt()
+                    Prnt => if let Some(Token::Register(_, r)) = tokens.next() {
+                        Opcode::Prnt(*r)
                     } else {
                         panic!("Expected register on line {}", line);
                     },
                     Prnl => Opcode::Prnl(),
                     Dump => Opcode::Dump(),
+                    Halt => Opcode::Halt(),
                     Stur | Ldur => handle_d(*instr, &mut tokens, *line),
                     Cbz | Cbnz => handle_cb(*instr, &mut tokens, &labels, &mut jumps, i, *line),
                     // NOTE B.cond instructions are encoded differently but they are written the
                     // same as B-form instructions.
-                    B | Bl | Beq | Bgt | Bge | Blt | Ble => handle_b(*instr, &mut tokens, &labels, &mut jumps, i, *line),
+                    B | Bl | Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc | Bhi |
+                    Bls | Bgt | Bge | Blt | Ble => handle_b(*instr, &mut tokens, &labels, &mut jumps, i, *line),
                     Addi | Addis | Andis | Eori | Orri | Subi | Subis => handle_i(*instr, &mut tokens, *line),
                     Add | Adds | And | Ands | Eor | Orr | Sub | Subs | Mul => handle_r(*instr, &mut tokens, *line),
                     Lsl | Lsr => handle_shift(*instr, &mut tokens, *line),
@@ -65,6 +67,15 @@ pub fn assemble(tokens: Vec<Token>) -> (Vec<Opcode>, Vec<usize>) {
                 Instruction::Cbz => code[pos] = code[pos].cbz_set_addr(addr),
                 Instruction::Cbnz => code[pos] = code[pos].cbnz_set_addr(addr),
                 Instruction::Beq => code[pos] = code[pos].beq_set_addr(addr),
+                Instruction::Bne => code[pos] = code[pos].bne_set_addr(addr),
+                Instruction::Bhs => code[pos] = code[pos].bhs_set_addr(addr),
+                Instruction::Blo => code[pos] = code[pos].blo_set_addr(addr),
+                Instruction::Bmi => code[pos] = code[pos].bmi_set_addr(addr),
+                Instruction::Bpl => code[pos] = code[pos].bpl_set_addr(addr),
+                Instruction::Bvs => code[pos] = code[pos].bvs_set_addr(addr),
+                Instruction::Bvc => code[pos] = code[pos].bvc_set_addr(addr),
+                Instruction::Bhi => code[pos] = code[pos].bhi_set_addr(addr),
+                Instruction::Bls => code[pos] = code[pos].bls_set_addr(addr),
                 Instruction::Bgt => code[pos] = code[pos].bgt_set_addr(addr),
                 Instruction::Bge => code[pos] = code[pos].bge_set_addr(addr),
                 Instruction::Blt => code[pos] = code[pos].blt_set_addr(addr),
@@ -124,6 +135,15 @@ fn handle_b(instr: Instruction, tokens: &mut Iter<Token>, labels: &HashMap<&Stri
         Instruction::B => Opcode::B(addr),
         Instruction::Bl => Opcode::Bl(addr),
         Instruction::Beq => Opcode::Beq(addr),
+        Instruction::Bne => Opcode::Bne(addr),
+        Instruction::Bhs => Opcode::Bhs(addr),
+        Instruction::Blo => Opcode::Blo(addr),
+        Instruction::Bmi => Opcode::Bmi(addr),
+        Instruction::Bpl => Opcode::Bpl(addr),
+        Instruction::Bvs => Opcode::Bvs(addr),
+        Instruction::Bvc => Opcode::Bvc(addr),
+        Instruction::Bhi => Opcode::Bhi(addr),
+        Instruction::Bls => Opcode::Bls(addr),
         Instruction::Bgt => Opcode::Bgt(addr),
         Instruction::Bge => Opcode::Bge(addr),
         Instruction::Blt => Opcode::Blt(addr),

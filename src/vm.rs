@@ -207,6 +207,7 @@ impl VM {
             Lsl => self.lsl(op),
             Lsr => self.lsr(op),
             Prnt | Prnl | Dump => self.pc += 1,
+            Halt => self.pc = self.code.len(),
             _ => unimplemented!(),
         }
 

@@ -11,9 +11,9 @@ impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
-            Prnt | Prnl | Dump => self.print_special(f),
+            Prnt | Prnl | Dump | Halt => self.print_special(f),
             B | Bl => self.print_b(f),
-            Cbz | Cbnz | Beq | Bgt | Bge | Blt | Ble => self.print_cb(f),
+            Cbz | Cbnz | Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc | Bhi | Bls | Bgt | Bge | Blt | Ble => self.print_cb(f),
             Movk | Movz => self.print_im(f),
             Ldur | Ldurb | Ldurh | Ldursw | Ldxr | Stur | Sturb | Sturh | Sturw | Stxr => self.print_d(f),
             Addi | Addis | Andi | Andis | Eori | Orri | Subi | Subis => self.print_i(f),
@@ -180,9 +180,10 @@ impl Opcode {
     fn print_special(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
-            Prnt => write!(f, "PRNT"),
+            Prnt => write!(f, "PRNT {}", self.prnt_rd()),
             Prnl => write!(f, "PRNL"),
             Dump => write!(f, "DUMP"),
+            Halt => write!(f, "HALT"),
             _ => unreachable!(),
         }
     }
@@ -197,12 +198,46 @@ impl Opcode {
         }
     }
 
+    pub fn print_branch_label(&self, label: &str) -> String {
+        use self::Instruction::*;
+        match self.instruction() {
+            Cbz => format!("CBZ {}, {}", self.cbz_rt(), label),
+            Cbnz => format!("CBNZ {}, {}", self.cbnz_rt(), label),
+            B => format!("B {}", label),
+            Bl => format!("BL {}", label),
+            Beq => format!("B.EQ {}", label),
+            Bne => format!("B.NE {}", label),
+            Bhs => format!("B.HS {}", label),
+            Blo => format!("B.LO {}", label),
+            Bmi => format!("B.MI {}", label),
+            Bpl => format!("B.PL {}", label),
+            Bvs => format!("B.VS {}", label),
+            Bvc => format!("B.VC {}", label),
+            Bhi => format!("B.HI {}", label),
+            Bls => format!("B.LS {}", label),
+            Bgt => format!("B.GT {}", label),
+            Bge => format!("B.GE {}", label),
+            Blt => format!("B.LT {}", label),
+            Ble => format!("B.LE {}", label),
+            _ => unreachable!(),
+        }
+    }
+
     fn print_cb(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
             Cbz => write!(f, "CBZ {}, {}", self.cbz_rt(), self.cbz_addr()),
             Cbnz => write!(f, "CBNZ {}, {}", self.cbnz_rt(), self.cbnz_addr()),
             Beq => write!(f, "B.EQ {}", self.beq_addr()),
+            Bne => write!(f, "B.NE {}", self.bne_addr()),
+            Bhs => write!(f, "B.HS {}", self.bhs_addr()),
+            Blo => write!(f, "B.LO {}", self.blo_addr()),
+            Bmi => write!(f, "B.MI {}", self.bmi_addr()),
+            Bpl => write!(f, "B.PL {}", self.bpl_addr()),
+            Bvs => write!(f, "B.VS {}", self.bvs_addr()),
+            Bvc => write!(f, "B.VC {}", self.bvc_addr()),
+            Bhi => write!(f, "B.HI {}", self.bhi_addr()),
+            Bls => write!(f, "B.LS {}", self.bls_addr()),
             Bgt => write!(f, "B.GT {}", self.bgt_addr()),
             Bge => write!(f, "B.GE {}", self.bge_addr()),
             Blt => write!(f, "B.LT {}", self.blt_addr()),
@@ -214,6 +249,7 @@ impl Opcode {
     fn print_im(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
+            // TODO: handle shift amount
             Movk => write!(f, "MOVK {}, {}", self.movk_rd(), self.movk_imm()),
             Movz => write!(f, "MOVZ {}, {}", self.movz_rd(), self.movz_imm()),
             _ => unreachable!(),
@@ -271,8 +307,12 @@ impl Opcode {
         }
     }
 
-    pub fn Prnt() -> Self {
-        Opcode(Instruction::Prnt.as_u32())
+    pub fn Prnt(rd: Register) -> Self {
+        Opcode(Instruction::Prnt.as_u32() | rd.as_u32())
+    }
+
+    pub fn prnt_rd(self) -> Register {
+        Register((self.0 & 0b11111) as u8)
     }
 
     pub fn Prnl() -> Self {
@@ -283,12 +323,25 @@ impl Opcode {
         Opcode(Instruction::Dump.as_u32())
     }
 
+    pub fn Halt() -> Self {
+        Opcode(Instruction::Halt.as_u32())
+    }
+
     b!(B, b_addr, b_set_addr);
     b!(Bl, bl_addr, bl_set_addr);
 
     cb!(Cbz, cbz_rt, cbz_addr, cbz_set_addr);
     cb!(Cbnz, cbnz_rt, cbnz_addr, cbnz_set_addr);
     bcond!(Beq, beq_addr, beq_set_addr);
+    bcond!(Bne, bne_addr, bne_set_addr);
+    bcond!(Bhs, bhs_addr, bhs_set_addr);
+    bcond!(Blo, blo_addr, blo_set_addr);
+    bcond!(Bmi, bmi_addr, bmi_set_addr);
+    bcond!(Bpl, bpl_addr, bpl_set_addr);
+    bcond!(Bvs, bvs_addr, bvs_set_addr);
+    bcond!(Bvc, bvc_addr, bvc_set_addr);
+    bcond!(Bhi, bhi_addr, bhi_set_addr);
+    bcond!(Bls, bls_addr, bls_set_addr);
     bcond!(Bgt, bgt_addr, bgt_set_addr);
     bcond!(Bge, bge_addr, bge_set_addr);
     bcond!(Blt, blt_addr, blt_set_addr);
@@ -406,6 +459,15 @@ pub enum Instruction {
     Sturb,
     Ldurb,
     Beq,
+    Bne,
+    Bhs,
+    Blo,
+    Bmi,
+    Bpl,
+    Bvs,
+    Bvc,
+    Bhi,
+    Bls,
     Bgt,
     Blt,
     Bge,
@@ -454,6 +516,7 @@ pub enum Instruction {
     Prnt,
     Prnl,
     Dump,
+    Halt,
 }
 
 impl Instruction {
@@ -474,6 +537,15 @@ impl Instruction {
             "STURB" => Sturb,
             "LDURB" => Ldurb,
             "B.EQ" => Beq,
+            "B.NE" => Bne,
+            "B.HS" => Bhs,
+            "B.LO" => Blo,
+            "B.MI" => Bmi,
+            "B.PL" => Bpl,
+            "B.VS" => Bvs,
+            "B.VC" => Bvc,
+            "B.HI" => Bhi,
+            "B.LS" => Bls,
             "B.GT" => Bgt,
             "B.LT" => Blt,
             "B.GE" => Bge,
@@ -522,6 +594,7 @@ impl Instruction {
             "PRNT" => Prnt,
             "PRNL" => Prnl,
             "DUMP" => Dump,
+            "HALT" => Halt,
             _ => return None,
         })
     }
@@ -533,8 +606,18 @@ impl Instruction {
             B => 0b000101 << 26,
             Bl => 0b100101 << 26,
             // CB instructions
-            Beq | Bgt | Blt | Ble | Bge => (0b1010100 << 24) | match self {
+            Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc |
+            Bhi | Bls | Bgt | Blt | Ble | Bge => (0b1010100 << 24) | match self {
                 Beq => 0x00,
+                Bne => 0x01,
+                Bhs => 0x02,
+                Blo => 0x03,
+                Bmi => 0x04,
+                Bpl => 0x05,
+                Bvs => 0x06,
+                Bvc => 0x07,
+                Bhi => 0x08,
+                Bls => 0x09,
                 Bgt => 0x0c,
                 Bge => 0x0a,
                 Blt => 0x0b,
@@ -602,9 +685,11 @@ impl Instruction {
                 Fsubd => 0b001110 << 10,
                 _ => unreachable!(),
             },
-            Prnt => 0b11111110000 << 21,
-            Prnl => 0b11111111000 << 21,
-            Dump => 0b11111111100 << 21,
+
+            Prnt => 0b11111111101 << 21,
+            Prnl => 0b11111111100 << 21,
+            Dump => 0b11111111110 << 21,
+            Halt => 0b11111111111 << 21,
         }
     }
 }
@@ -625,6 +710,15 @@ impl From<u32> for Instruction {
             0b10110101 => return Cbnz,
             0b01010100 => match r & 0b11111 {
                 0x00 => return Beq,
+                0x01 => return Bne,
+                0x02 => return Bhs,
+                0x03 => return Blo,
+                0x04 => return Bmi,
+                0x05 => return Bpl,
+                0x06 => return Bvs,
+                0x07 => return Bvc,
+                0x08 => return Bhi,
+                0x09 => return Bls,
                 0x0c => return Bgt,
                 0x0a => return Bge,
                 0x0b => return Blt,
@@ -712,9 +806,10 @@ impl From<u32> for Instruction {
                 0b001110 => return Fsubd,
                 _ => (),
             },
-            0b11111110000 => return Prnt,
-            0b11111111000 => return Prnl,
-            0b11111111100 => return Dump,
+            0b11111111101 => return Prnt,
+            0b11111111100 => return Prnl,
+            0b11111111110 => return Dump,
+            0b11111111111=> return Halt,
             _ => (),
         }
 
