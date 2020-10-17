@@ -67,7 +67,7 @@ fn assemble(filename: &str, le: bool) {
         }
     }
 
-    let mut f = File::open(format!("{}.machine", filename)).unwrap();
+    let mut f = File::create(format!("{}.machine", filename)).unwrap();
     f.write_all(&c).unwrap();
 }
 

@@ -9,6 +9,7 @@ pub fn disassemble(code: Vec<Opcode>) -> Vec<String> {
     let mut pc = 0;
 
     for op in code {
+        println!("{:x}", op.0);
         use bytecode::Instruction::*;
         match op.instruction() {
             B | Bl | Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc | Bhi | Bls |

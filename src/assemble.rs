@@ -40,8 +40,8 @@ pub fn assemble(tokens: Vec<Token>) -> (Vec<Opcode>, Vec<usize>) {
                     // same as B-form instructions.
                     B | Bl | Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc | Bhi |
                     Bls | Bgt | Bge | Blt | Ble => handle_b(*instr, &mut tokens, &labels, &mut jumps, i, *line),
-                    Addi | Addis | Andis | Eori | Orri | Subi | Subis => handle_i(*instr, &mut tokens, *line),
-                    Add | Adds | And | Ands | Eor | Orr | Sub | Subs | Mul => handle_r(*instr, &mut tokens, *line),
+                    Addi | Addis | Andi | Andis | Eori | Orri | Subi | Subis => handle_i(*instr, &mut tokens, *line),
+                    Add | Adds | And | Ands | Eor | Orr | Sub | Subs | Mul | Sdiv => handle_r(*instr, &mut tokens, *line),
                     Lsl | Lsr => handle_shift(*instr, &mut tokens, *line),
                     Br => if let Some(Token::Register(_, r)) = tokens.next() {
                         Opcode::Br(*r)
@@ -208,7 +208,13 @@ fn handle_i(instr: Instruction, tokens: &mut Iter<Token>, line_number: usize) ->
 
     match instr {
         Instruction::Addi => Opcode::Addi(rn, rd, imm),
+        Instruction::Addis => Opcode::Addis(rn, rd, imm),
+        Instruction::Andi => Opcode::Andi(rn, rd, imm),
+        Instruction::Andis => Opcode::Andis(rn, rd, imm),
+        Instruction::Eori => Opcode::Eori(rn, rd, imm),
+        Instruction::Orri => Opcode::Orri(rn, rd, imm),
         Instruction::Subi => Opcode::Subi(rn, rd, imm),
+        Instruction::Subis => Opcode::Subis(rn, rd, imm),
         _ => unreachable!(),
     }
 }
@@ -232,8 +238,13 @@ fn handle_r(instr: Instruction, tokens: &mut Iter<Token>, line_number: usize) ->
 
     match instr {
         Instruction::Add => Opcode::Add(rm, rn, rd),
+        Instruction::And => Opcode::And(rm, rn, rd),
+        Instruction::Eor => Opcode::Eor(rm, rn, rd),
+        Instruction::Orr => Opcode::Orr(rm, rn, rd),
         Instruction::Sub => Opcode::Sub(rm, rn, rd),
         Instruction::Subs => Opcode::Subs(rm, rn, rd),
+        Instruction::Mul => Opcode::Mul(rm, rn, rd),
+        Instruction::Sdiv => Opcode::Sdiv(rm, rn, rd),
         _ => unreachable!(),
     }
 }

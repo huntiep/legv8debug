@@ -291,12 +291,14 @@ impl Opcode {
     fn print_r(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::Instruction::*;
         match self.instruction() {
+            Mul => write!(f, "MUL {}, {}, {}", self.mul_rd(), self.mul_rn(), self.mul_rm()),
+            Sdiv => write!(f, "SDIV {}, {}, {}", self.sdiv_rd(), self.sdiv_rn(), self.sdiv_rm()),
             Add => write!(f, "ADD {}, {}, {}", self.add_rd(), self.add_rn(), self.add_rm()),
             Adds => write!(f, "ADDS {}, {}, {}", self.adds_rd(), self.adds_rn(), self.adds_rm()),
             And => write!(f, "AND {}, {}, {}", self.and_rd(), self.and_rn(), self.and_rm()),
             Ands => write!(f, "ANDS {}, {}, {}", self.ands_rd(), self.ands_rn(), self.ands_rm()),
-            Eor => write!(f, "ANDS {}, {}, {}", self.eor_rd(), self.eor_rn(), self.eor_rm()),
-            Orr => write!(f, "ANDS {}, {}, {}", self.orr_rd(), self.orr_rn(), self.orr_rm()),
+            Eor => write!(f, "EOR {}, {}, {}", self.eor_rd(), self.eor_rn(), self.eor_rm()),
+            Orr => write!(f, "ORR {}, {}, {}", self.orr_rd(), self.orr_rn(), self.orr_rm()),
             Sub => write!(f, "SUB {}, {}, {}", self.sub_rd(), self.sub_rn(), self.sub_rm()),
             Subs => write!(f, "SUBS {}, {}, {}", self.subs_rd(), self.subs_rn(), self.subs_rm()),
             Lsl => write!(f, "LSL {}, {}, #{}", self.lsl_rd(), self.lsl_rn(), self.lsl_shamt()),
