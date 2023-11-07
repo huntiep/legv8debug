@@ -32,6 +32,10 @@ fn main() {
             .arg(Arg::with_name("LEGv8 Binary file")
                 .required(true)
                 .index(1)))
+        .subcommand(SubCommand::with_name("run")
+            .arg(Arg::with_name("LEGv8 Assembly file")
+                .required(true)
+                .index(1)))
         .subcommand(SubCommand::with_name("debug")
             //.arg(Arg::with_name("binary")
             //    .short("b"))
@@ -46,6 +50,8 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("disassemble") {
         disassemble(matches.value_of("LEGv8 Binary file").unwrap(),
                     matches.is_present("little-endian"));
+    } else if let Some(matches) = matches.subcommand_matches("run") {
+        run(matches.value_of("LEGv8 Assembly file").unwrap());
     } else if let Some(matches) = matches.subcommand_matches("debug") {
         debug(matches.value_of("LEGv8 Assembly file").unwrap());
     }
@@ -175,4 +181,19 @@ fn debug(filename: &str) {
             }
         }
     }
+}
+
+fn run(filename: &str) {
+    let mut f = File::open(filename).unwrap();
+    let mut buf = String::new();
+    f.read_to_string(&mut buf).unwrap();
+
+    let tokens = tokenizer::Tokenizer::tokenize(&buf);
+    let (code, line_map) = assemble::assemble(tokens);
+
+    let mut vm = VM::new();
+    vm.load_code(code);
+    vm.load_line_map(line_map);
+    vm.run();
+    vm.dump();
 }

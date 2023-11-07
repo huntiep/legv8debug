@@ -1,5 +1,5 @@
 # legv8debug
-A debugger for legv8 assembly.
+A debugging emulator for legv8 assembly.
 
 ### Supported commands
 - `q`: quit the debugger

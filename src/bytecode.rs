@@ -145,8 +145,13 @@ macro_rules! i {
             Register((self.0 & 0b11111) as u8)
         }
 
-        pub fn $imm(self) -> u16 {
-            ((self.0 >> 10) & 0b1111_11111111) as u16
+        pub fn $imm(self) -> i16 {
+            let i = ((self.0 >> 10) & 0b1111_11111111) as u16;
+            if (i >> 11) == 1 {
+                (i | (0b1111 << 12)) as i16
+            } else {
+                i as i16
+            }
         }
     };
 }

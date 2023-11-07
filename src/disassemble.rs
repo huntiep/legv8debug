@@ -9,7 +9,6 @@ pub fn disassemble(code: Vec<Opcode>) -> Vec<String> {
     let mut pc = 0;
 
     for op in code {
-        println!("{:x}", op.0);
         use bytecode::Instruction::*;
         match op.instruction() {
             B | Bl | Beq | Bne | Bhs | Blo | Bmi | Bpl | Bvs | Bvc | Bhi | Bls |
@@ -32,8 +31,8 @@ pub fn disassemble(code: Vec<Opcode>) -> Vec<String> {
 }
 
 fn get_label(op: Opcode, pc: &mut u32, ln: &mut usize, jumps: &mut HashMap<u32, String>) -> String {
-        use bytecode::Instruction::*;
-    let addr = match op.instruction() {
+    use bytecode::Instruction::*;
+    let addr = *pc + match op.instruction() {
         B => op.b_addr(),
         Bl => op.bl_addr(),
         Cbz => op.cbz_addr(),
@@ -54,7 +53,6 @@ fn get_label(op: Opcode, pc: &mut u32, ln: &mut usize, jumps: &mut HashMap<u32, 
         Ble => op.ble_addr(),
         _ => unreachable!(),
     };
-    let addr = *pc + addr;
 
     if let Some(l) = jumps.get(&addr) {
         l.clone()
